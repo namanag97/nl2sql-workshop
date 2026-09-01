@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>THE MERIDIAN CHALLENGE</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23D8231F'/></svg>">
+<style>
+:root{
+  --paper:#FFFFFF; --ink:#111111; --dim:#6E6E6E; --hair:#E4E4E0; --hair2:#CFCFCA;
+  --red:#D8231F; --ok:#1B7F4D; --soft:#F6F6F2;
+  --sans:"Helvetica Neue",Helvetica,Inter,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--hair2);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--red)}
+::selection{background:var(--red);color:#fff}
+.frame{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+@media(max-width:820px){.frame{grid-template-columns:1fr}}
+.rail{border-right:1px solid var(--hair);padding:28px 22px;position:sticky;top:0;height:100vh;overflow:auto}
+@media(max-width:820px){.rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--hair)}}
+.mark{width:26px;height:26px;background:var(--red);margin-bottom:26px}
+.rail h1{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin:0 0 4px}
+.rail .sub{font-size:11px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:26px}
+.idx{list-style:none;margin:0;padding:0}
+.idx a{display:flex;gap:10px;padding:7px 0;text-decoration:none;border-top:1px solid var(--hair);font-size:13.5px}
+.idx a .no{font-family:var(--mono);font-size:11px;color:var(--dim);width:20px}
+.idx a.on{color:var(--red);font-weight:700}
+.idx a:hover{color:var(--red)}
+.rail .clock{margin-top:26px;border-top:1px solid var(--hair);padding-top:16px}
+.main{padding:34px 44px 90px;max-width:860px}
+@media(max-width:820px){.main{padding:22px 18px 70px}}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin:0 0 6px}
+h2.big{font-size:clamp(28px,4.5vw,44px);font-weight:700;letter-spacing:-.02em;line-height:1.04;margin:0 0 8px}
+.lede{font-size:17px;color:#333;max-width:60ch;margin:10px 0 0}
+h3{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin:30px 0 10px}
+h3 .no{color:var(--red);font-family:var(--mono);margin-right:8px}
+p{margin:8px 0}
+.dim{color:var(--dim)} .mono{font-family:var(--mono)}
+.red{color:var(--red)} .ok{color:var(--ok);font-weight:700}
+.sect{border-top:1px solid var(--hair);padding:22px 0 6px;margin-top:18px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0}
+td,th{border-bottom:1px solid var(--hair);padding:9px 8px;text-align:left;vertical-align:top}
+th{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:700}
+input,textarea,select{width:100%;background:#fff;color:var(--ink);border:1px solid var(--ink);border-radius:0;padding:11px 12px;font:14px/1.4 var(--sans);margin:6px 0 14px}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--red);outline-offset:-1px}
+button{appearance:none;background:var(--ink);color:#fff;border:1px solid var(--ink);border-radius:0;padding:11px 18px;font:700 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;cursor:pointer;margin:6px 8px 6px 0}
+button:hover{background:var(--red);border-color:var(--red)}
+button.ghost{background:transparent;color:var(--ink)}
+button.ghost:hover{color:var(--red);border-color:var(--red)}
+button.mini{padding:6px 10px;font-size:10.5px;margin:0}
+button.hero{background:var(--red);border-color:var(--red);font-size:14px;padding:16px 26px}
+button.hero:hover{background:var(--ink);border-color:var(--ink)}
+.bar{height:3px;background:var(--hair);margin:18px 0 8px}
+.bar i{display:block;height:3px;background:var(--red)}
+.timer{font-family:var(--mono);font-weight:700;font-size:40px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.timer.warn{color:var(--red)}
+.card{background:var(--soft);border:1px solid var(--hair);padding:16px 18px;margin:12px 0}
+.flag{font-size:11px;color:var(--dim);letter-spacing:.04em}
+.tag{display:inline-block;border:1px solid var(--ink);padding:2px 9px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;margin:0 6px 6px 0}
+.tag.red{border-color:var(--red);color:var(--red)}
+.banner{border-left:3px solid var(--red);background:var(--soft);padding:12px 16px;margin:16px 0}
+pre{background:var(--soft);border:1px solid var(--hair);border-left:3px solid var(--ink);padding:14px 16px;overflow-x:auto;font:13px/1.5 var(--mono);white-space:pre-wrap;margin:8px 0 4px}
+.step{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--hair);align-items:flex-start}
+.step input[type=checkbox]{width:17px;height:17px;accent-color:var(--red);margin:2px 0 0;flex:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 26px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+.bignum{font-family:var(--mono);font-size:22px;font-weight:700}
+.code{font-family:var(--mono);font-size:13px;word-break:break-all;background:var(--soft);border:1px dashed var(--hair2);padding:12px}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+@media(max-width:700px){.pick{grid-template-columns:1fr}}
+.pick button{width:100%;text-align:left;padding:18px 16px;letter-spacing:.04em;text-transform:none;font:600 15px/1.3 var(--sans)}
+.pick button.on{background:var(--red);border-color:var(--red);color:#fff}
+.opt{display:block;width:100%;margin:8px 0;text-align:left;text-transform:none;letter-spacing:0;font:600 16px/1.3 var(--sans);padding:16px 18px}
+.opt.on{background:var(--red);border-color:var(--red)}
+.speak{border:1px dashed var(--hair2);padding:14px 16px;margin:12px 0;font-size:14px}
+.stage-num{font-family:var(--mono);font-size:clamp(42px,8vw,88px);font-weight:700;letter-spacing:-.03em;line-height:.95;margin:8px 0 4px}
+body.onstage .rail{display:none}
+body.onstage .frame{grid-template-columns:1fr}
+body.onstage .main{max-width:1100px;padding:48px 56px}
+body.onstage h2.big{font-size:clamp(36px,6vw,64px)}
+@media print{.rail,button{display:none!important}.frame{grid-template-columns:1fr}.main{padding:0;max-width:none}body{font-size:12px}.card{background:#fff;border:1px solid #999}}
+</style>
+</head>
+<body>
+<div class="frame">
+  <aside class="rail">
+    <div class="mark"></div>
+    <h1>Meridian<br>Trading Co.</h1>
+    <div class="sub" id="railsub">The Data Challenge</div>
+    <ul class="idx" id="idx"></ul>
+    <div class="clock" id="railclock"></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<script>
+/* Design sources (2025–26): Think Insights — frame as risk, not training;
+   Mentimeter — teach → pulse → discuss the split; Workshop Weaver — silent
+   vote before the loudest voice; strategy-meeting literature — 90-day owners;
+   Databox/Basedash — semantic layer + "AI drafts, human certifies";
+   OR mentor — formulation first, no unidentified causes. */
+
+const EVENT={
+  durationMin:150, capacity:8,
+  teams:{ "MARS":"Team Mars","VENUS":"Team Venus","TITAN":"Team Titan",
+          "ORION":"Team Orion","LUNA":"Team Luna","NOVA":"Team Nova" }
+};
+
+const AGENDA_LAB=[
+ [0,"Welcome","Meet your partner · get set up"],
+ [10,"Smoke test","Paste C0 — prove your setup works"],
+ [20,"Challenge 1 · The 86 million","Same warehouse. Finance got 23. Why?"],
+ [45,"Why this happens","The question was not well-posed"],
+ [55,"Challenge 2 · Fix it","Declare the rules · rebuild · re-check"],
+ [95,"Break","Coffee · write trap questions"],
+ [110,"Challenge 3 · Break the machine","Trade traps · optional C8 demo"],
+ [135,"Wrap-up","Three lessons · take your kit"],
+ [150,"End","Out on time."]];
+
+const AGENDA_EXEC=[
+ [0,"Welcome","This is risk reduction, not a training class"],
+ [8,"Pulse","Would you take this number to the board?"],
+ [18,"The 86 million","Same warehouse. Four defensible answers."],
+ [38,"The 2× dashboard","A legal report that ships fiction"],
+ [55,"Break","Five minutes. Then we decide."],
+ [62,"Declare","Your three ticks. Then it is a number."],
+ [72,"Refuse","What a CFO-safe assistant must not answer"],
+ [82,"90 days","Owners, metric, what we will not claim"],
+ [90,"End","Out on time."]];
+
+const ACTIONS_LAB={
+ 0:{txt:"Join, then tick the 3 setup steps below",go:"home"},
+ 1:{txt:"Open the cards · paste C0 into the agent",go:"cards"},
+ 2:{txt:"Open Challenge 1 · paste card C1 · record your number",go:"pack-P1"},
+ 3:{txt:"Open Teach — the pattern behind what you just saw",go:"teach"},
+ 4:{txt:"Ticks first · then cards C6 & C7 · re-check your numbers",go:"pack-P2"},
+ 5:{txt:"Break · then write trap questions on the Wall",go:"wall"},
+ 6:{txt:"Trade traps · try card C8 only as a demo",go:"wall"},
+ 7:{txt:"Grade · then write your 90-day decisions",go:"decide"},
+ 8:{txt:"Thanks — grab the checklist on the way out",go:"checklist"}};
+
+const ACTIONS_EXEC={
+ 0:{txt:"Read the CFO email (90 seconds)",go:"artifacts"},
+ 1:{txt:"Vote: would you take 86 million to the board?",go:"teach"},
+ 2:{txt:"Follow Teach — 86 million vs 23 million",go:"teach"},
+ 3:{txt:"Follow Teach — the dashboard that doubled",go:"teach"},
+ 4:{txt:"Break. Then we declare the rules.",go:"home"},
+ 5:{txt:"Tick the three decisions as a leadership team",go:"decide"},
+ 6:{txt:"Which questions must the assistant refuse?",go:"teach"},
+ 7:{txt:"Write the 90-day decision record",go:"decide"},
+ 8:{txt:"Done. Forward the one-pager tomorrow.",go:"checklist"}};
+
+const KEYS={
+ Q1:{lines:["86,296,983|the naive answer — every line, cancelled included, returns ignored. Right answer, wrong question",
+            "73,900,374|the booked answer — invoiced only (cancelled orders are never invoiced). A different decision, not an error",
+            "23,597,376|Sales' number — gross, by order date, cancelled excluded",
+            "23,193,717|Finance's number — net of returns, by invoice date",
+            "22,389,702|The board's number — finance's rules, US orders only"]},
+ Q2:{lines:["62,541,876|the broken total — the joins quietly multiplied the rows (≈2.27× too high)",
+            "27,496,555|the fixed total — one line per product, one region per rep, returns subtracted"]},
+ Q3:{lines:["277|naive — everyone who ordered, no definition applied",
+            "236|as known TODAY — including the retroactive edits",
+            "198|as known AT CLOSE — only what was loaded before 2026-04-02",
+            "236|as of Mar 15 — the backdated truth applies to March"]},
+ Q4:{lines:["4842001|C-1042 alone — one ERP code, not the legal entity",
+            "5577887|Acme Corp merged via the cross-reference — the entity number"]},
+ Q5:{lines:["17,856|naive — cancelled included, returns ignored",
+            "16,173|fixed — cancelled excluded, returns subtracted (the default ticks)"]}};
+function grade(q,v){
+  const out=[];
+  for(const line of (KEYS[q]||{lines:[]}).lines){
+    const num=parseFloat(line.split("|")[0].replace(/,/g,""));
+    if(Math.abs(v-num)/num<0.005) out.push(line);
+  }
+  return out;
+}
+
+const PACKS={
+ P1:{spine:true,title:"You got 86 million. Finance got 23.",time:"25 min",
+  red:"Same warehouse. Nobody is lying.",
+  story:"Paste C1. You will get ~86 million. Finance's FY26 number is ~23 million. Name the decisions that make the gap — then open Documents. The CFO's email and the wiki disagree.",
+  tasks:["Paste card C1. Write the number.",
+   "Name one thing the SQL counted that the CFO's email would not.",
+   "Open Documents. CFO vs wiki — who wins?",
+   "Lab only: reproduce Sales / Finance / Board by changing one decision at a time."],
+  exec:["Vote: would you take 86.3M to Thursday's board?",
+   "Open Documents. Who wins — the CFO email or the wiki?",
+   "Which undeclared decision moves the most money? (hint: all-time vs one year is most of 86 vs 23)"],
+  hints:"Cancelled orders. Returns. Order date vs invoice date. All-time vs FY26 (Feb 1). Each is a decision someone owns.",
+  monday:"Do not sign a revenue number until cancelled / returns / date / scope are written down."},
+ P2:{spine:true,title:"The number that's 2× too big",time:"40 min",
+  red:"Every join is legal. The sum is fiction.",
+  story:"Someone asked for monthly revenue by product line and region. The grand total is more than double reality. Find which joins duplicate rows, declare the rules, make it land. Eight regions, not six.",
+  tasks:["Paste C2. Record the grand total.",
+   "Count rows at every join. Where does it explode?",
+   "Tick D1–D3, paste C6, re-run from your team view.",
+   "Re-record the governed total."],
+  exec:["Look at 62.5M vs 27.5M. Would you ship that dashboard?",
+   "The conservation test: revenue at line grain must survive aggregation.",
+   "Tick the three rules. The number is not real until they are declared."],
+  hints:"Products in two lines. Reps in two regions. Extra customer-history rows. They multiply.",
+  monday:"Before you trust a regional or product-line total, ask whether the join conserved the money."},
+ P3:{title:"How many customers in March?",time:"45 min lab · 3 min taste",
+  red:"The past was edited after close.",
+  story:"How many active customers in March? It depends when you ask. Card C3 is a three-minute taste on the live day.",
+  tasks:["Paste C3. Record the number AND the definition.",
+   "Three readings: as known today · at March close · as of March 15.",
+   "One sentence: what changed between close and today?"],
+  exec:["Ask: as-of when? As-known-now is not as-known-at-close.",
+   "If two readings match, that is not automatically a bug — say why."],
+  hints:"The customer table keeps history. Some rows loaded after close.",
+  monday:"Never accept 'active customers' without a knowledge date."},
+ P4:{title:"How much is Acme worth?",time:"60 min lab · 3 min taste",
+  red:"Two codes, one company. A similar name is not the same company.",
+  story:"Total exposure to Acme Corp? The second ERP code is small — it will not appear in a top-5 list. You have to look in the cross-reference.",
+  tasks:["Ask for Acme's total. Demand which codes were included.",
+   "Merge only through the cross-reference. Ask again.",
+   "Is Acme Logistics Group the same company? What evidence is never enough?"],
+  exec:["Top-5 by account code is not exposure.",
+   "Over-merging by name is the incident. Shared email domains prove nothing."],
+  hints:"Twelve companies share one email domain. Names are not evidence.",
+  monday:"Credit and concentration reports merge only on governed identity."},
+ P5:{title:"Who's allowed to see this?",time:"45 min lab",
+  red:"A rule in the prompt leaks. A rule in a view does not.",
+  story:"Named question: Q1 2026 NORTH net revenue, and 5 NORTH emails. Ask it as three people. Then put NORTH into a view and attack that view.",
+  tasks:["Ask the named question as analyst, controller, support.",
+   "Build V_NORTH_REVENUE in the team schema. Prove EAST rows = 0.",
+   "Six attacks. Record refused / assumed / leaked."],
+  exec:["Access that lives in the prompt will be social-engineered.",
+   "Ask vendors: does authorization happen at the data, or in the chat?"],
+  hints:"A legal SUM over 3 people is one person's number.",
+  monday:"Board and compensation numbers need structural access, not 'the model usually behaves'."},
+ P6:{title:"Why are orders late?",time:"60 min lab",
+  red:"The average hid the complaints.",
+  story:"Ops quotes 'about three days.' Build the timeline, report the broken rows, look at the tail. Dual-region reps are over-indexed there — that is a hypothesis, not a proven cause.",
+  tasks:["One start, one end per order.",
+   "Report orphans and orders with no valid shipment. Do not drop them.",
+   "Bucket the times. Split the late tail. Name a hypothesis, not a cause."],
+  exec:["Averages are not operations. Ask for the tail.",
+   "Concentration is not causation. Do not leave this room saying the reps caused delay."],
+  hints:"Shipments dated before the order are data errors — count them first.",
+  monday:"Service-level reviews show the distribution, and say what was excluded."},
+ P7:{title:"Margin after the policy change",time:"10 min demo · 45 min lab",
+  red:"One Slack message. Five queries.",
+  story:"Which region's margin dropped most after the Feb 2026 returns policy, and by how many points? Demand the sub-steps. Do not treat the answer as the policy's effect.",
+  tasks:["Paste C8. Demand definition, quarters, and 'after' date.",
+   "If it one-shots, distrust it.",
+   "Lab: run the pieces. State assumptions. Name which earlier trap bit you."],
+  exec:["Before/after is not a counterfactual. Q2 vs Q1 also moves with mix and season.",
+   "Your job: demand the decomposition, then refuse the causal claim."],
+  hints:"Margin = net − returns − COGS. Calendar quarters. Primary region.",
+  monday:"Multi-step questions go to a certified metric, not a chat box."},
+ P8:{spine:true,title:"Show your work",time:"25 min",
+  red:"The graded artifact is what the assistant refuses.",
+  story:"Every answer needs sources, a kind (number / range / it depends), or an honest refusal. Pass: 3 of 5 traps refused or answered with assumptions.",
+  tasks:["Re-ask revenue with citations. Check them.",
+   "Run the five traps. Predict first: answer or refuse?",
+   "Grade: ≥3 of 5 refused or stated-assumptions."],
+  exec:["A vendor that 'just answers' is optimizing the demo.",
+   "Ask: when the term is ambiguous, does it ask — or guess?"],
+  hints:"'Active' has two definitions. CRM vs ERP disagree by 1.8% on purpose.",
+  monday:"AI drafts. A human certifies anything that hits a board deck."}
+};
+
+const CARDS=[
+ ["C0","Smoke test","List every table in schema o2c with its row count.","Expect 16 tables · 2,640 customers · 4,833 orders · 16,874 lines."],
+ ["C0.5","While you wait","Show me 5 cancelled orders: order id, date, and total line amount.","If you got 0, something is wrong — red card."],
+ ["C1","Revenue — all time","Using raw tables only (no views): what is total revenue across all orders, all time? Sum the ORDER_LINES.line_amount column. Show the SQL and the number.",""],
+ ["C2","Monthly by line by region","Monthly revenue by product line by region, calendar year 2026, from raw tables. Show the SQL. Then give me the GRAND TOTAL across the whole result table as a single number.",""],
+ ["C3","Active customers in March","How many active customers did we have in March 2026? State your definition.",""],
+ ["C4","Top 5 customers","Top 5 customers by all-time revenue, with their revenue.",""],
+ ["C5","Average order value","What is our average order value?",""],
+ ["C6","The fix — after your ticks","In OUR TEAM SCHEMA (o2c_team<N>): create view V_REVENUE_GOVERNED — exclude CANCELLED (D1), net of RETURNS (D2), revenue date = (D3). Grain: one row per order line, carrying the product's PRIMARY product line (is_primary = TRUE only) and the rep's PRIMARY region. Comment the rules. Show 5 sample rows.","Re-runs read FROM o2c_team<N>.V_REVENUE_GOVERNED."],
+ ["C7","Teach the platform","In OUR TEAM SCHEMA: list the PK/FK relationships and write 3 example SQL queries against the governed view.","Relationships are documentation. The view is what protects the numbers."],
+ ["C8","The monster","Which region's gross margin dropped the most, quarter over quarter, after the Feb 2026 returns policy change — and by how many points? Show each step before the final answer.","One shot = distrust it. Do not call the result the policy's effect."]];
+
+const CHECKLIST=["Which definition did it assume — and who owns that decision?",
+"Which date did it use (order, invoice, payment)?","Are cancelled/excluded rows actually excluded?",
+"Could any join produce more rows than went in?","Is the answer at the right level of detail?",
+"Is this 'as of now' or 'as of then'?","Two codes, one customer — was identity resolved?",
+"What would change if data arrived late?","Can it cite its sources — tables, filters, rule version?",
+"Would it say 'I don't know' if it should?"];
+
+const VENDOR=["Does it query live data, or generate plausible estimates?",
+"Do metric definitions live in a semantic layer — or in the model's guess?",
+"When my question is vague, does it ask what I mean?",
+"When it does not know, does it refuse?",
+"Can I see the exact query it ran?",
+"Does authorization happen at the data, or only in the prompt?",
+"What does a wrong answer look like? Show me one from production.",
+"Who certifies a number before it hits a board deck?"];
+
+const ARTIFACTS=[
+ {t:"Email — CFO → Data team · Mon 07:42",b:`<p>Team — board prep Thursday. I need <b>ONE</b> revenue number for the year. Sales keeps sending me a different figure than finance and I'm done presenting ranges.</p>
+  <p>Finance books revenue when the <b>invoice goes out</b>, net of anything that comes back. If an order was cancelled, we never booked it — it is not revenue. And keep the European entities out of the board number.</p>
+  <p>Also: whoever maintains the "Active customers" wiki page — March close restated some contracts and the page wasn't updated. Fix or delete it.</p><p>— R.</p>`},
+ {t:"Wiki — 'Metric definitions' · last edited Jan 2026 · STALE",b:`<p><b>Revenue</b>: all order lines, fiscal year (Feb–Jan), order-date basis. <span class="red">Written before the returns policy existed.</span></p>
+  <p><b>Active customer</b>: ≥1 order in trailing 90 days. <span class="red">The CFO's report counts active contracts instead.</span></p>
+  <p><b>Region</b>: see REGION_ASSIGNMENT. <span class="dim">(Page omits that six reps cover two regions.)</span></p>`},
+ {t:"Chat — #data-help · Tue",b:`<p><b>sales-ops</b>: my monthly revenue dashboard says 62.5M for the half-year but finance says 27.5M for the same period?? which dashboard is broken</p>
+  <p><b>data-eng</b>: they're both "right". Check how many rows your product-line join adds. Also a couple of our reps cover two regions. <span class="dim">[thread frozen — dashboard migration]</span></p>
+  <p><b>cfo-office</b>: we need the governed number by Thursday. One number. Declared rules. No vibes.</p>`}];
+
+const BEATS={
+ exec:[
+  {id:"open",k:"Welcome",h:"Protect the Thursday board.",
+   say:"This is not a training class. In 90 minutes you will refuse to sign a number that is not formulated. Phones stay out except for this page.",
+   show:"Risk reduction. Silent vote before discussion. Decisions have owners.",
+   pulse:null},
+  {id:"board",k:"Pulse",h:"Would you take this to the board?",
+   say:"Do not discuss yet. Vote first. The split is the lesson.",
+   num:"86,296,983", cap:"Total revenue. All time. Raw tables. An assistant produced this in 8 seconds.",
+   pulse:{k:"board",q:"Do you take 86.3 million to Thursday's board?",
+    opts:[["yes","Yes — ship it"],["no","No — not like this"],["dep","It depends — I need the rules"]]}},
+  {id:"p1",k:"The 86 million",h:"Four answers. One warehouse.",
+   say:"86 vs 23 is mostly scope (all-time vs one year), not rounding. Then cancelled, returns, and date. Each tick has a dollar amount. That is the formulation.",
+   show:"Naive 86.3M · booked 73.9M · Sales FY26 23.6M · Finance 23.2M · Board 22.4M",
+   pulse:{k:"who",q:"Who wins — CFO email or the stale wiki?",
+    opts:[["cfo","The CFO's email"],["wiki","The wiki — it is documented"],["ask","Refuse until someone owns the metric"]]}},
+  {id:"p2",k:"The 2× dashboard",h:"Conservation, not a join gotcha.",
+   say:"Every join was legal. Money was not conserved. 62.5 million is 2.27× the governed total. You would have shipped it. There is no error message.",
+   num:"62,541,876 → 27,496,555", cap:"Same question. Primary line, primary region, returns netted.",
+   pulse:{k:"dash",q:"Would you ship the 62.5M dashboard?",
+    opts:[["ship","Ship — the query ran"],["hold","Hold — until grain is declared"],["lint","Never ship a join we cannot lint"]]}},
+  {id:"brk",k:"Break",h:"Five minutes.",
+   say:"Do not start the next debate in the corridor. We come back to write the ticks.",
+   show:"Then: declare, refuse, 90-day owners.", pulse:null},
+  {id:"dec",k:"Declare",h:"The number exists after the ticks.",
+   say:"Cancelled count? Returns subtracted? Which date? Anyone who disputes the number must dispute a tick. That is the semantic layer, in three boxes.",
+   show:"Default that matches the envelope: cancelled NO · returns YES · order date.",
+   pulse:null},
+  {id:"ref",k:"Refuse",h:"'I don't know' is a correct answer.",
+   say:"A vendor that just answers is optimizing the demo. A CFO-safe assistant asks, or refuses. AI drafts. A human certifies anything that hits a board deck.",
+   pulse:{k:"refuse",q:"'How many active customers do we have?'",
+    opts:[["ans","Answer it"],["ask","Ask which definition"],["ref","Refuse until there is one owner"]]}},
+  {id:"d90",k:"90 days",h:"Leave with owners, not enthusiasm.",
+   say:"Metric owner. What we will not claim (no fake causes). One 90-day move. Write it on Decide before you stand up.",
+   show:"P6 concentration is a hypothesis. P7 before/after is not a policy effect.",
+   pulse:null},
+  {id:"end",k:"End",h:"Out on time.",
+   say:"One-word round if you have 90 seconds. Then stop.", pulse:null}
+ ],
+ lab:[
+  {id:"open",k:"Welcome",h:"Catch the wrong answer.",
+   say:"Pairs. Pilot reads, Copilot pastes. You never write SQL. PIRA: prompt, inspect, react, announce.",
+   show:"Red card = stuck. Do not start the clock until doors + S1.", pulse:null},
+  {id:"c0",k:"Smoke",h:"16 tables. Exact counts.",
+   say:"If two tables are red at minute 20, switch the room to the offline kit. The switch is final here.",
+   pulse:null},
+  {id:"p1",k:"Challenge 1",h:"You will get 86 million.",
+   say:"Celebrate the naive match: correct SQL, wrong question. Then point at finance's 23.2M. Do not try to reproduce all three registers in 25 minutes.",
+   num:"86,296,983", cap:"C1 — all-time line amount",
+   pulse:{k:"board",q:"Would you take this number to the board?",
+    opts:[["yes","Yes"],["no","No"],["dep","Depends"]]}},
+  {id:"why",k:"The pattern",h:"The question was not well-posed.",
+   say:"You did not fail at SQL. The model did not fail at SQL. The schema did not carry the business rules.",
+   pulse:null},
+  {id:"p2",k:"Challenge 2",h:"Ticks first. Then paste C6.",
+   say:"If they paste before they tick, stop them. The declare-order is the lesson. Only Q1/Q2/Q5 change. C3/C4 staying wrong is the sell for the take-home packs.",
+   num:"62,541,876 → 27,496,555", cap:"The jump the room measures", pulse:null},
+  {id:"brk",k:"Break",h:"Wall of pain starts.", say:"Two trap questions per pair.", pulse:null},
+  {id:"p8",k:"Refuse",h:"Grade the refusals.",
+   say:"C8 is a ten-minute demo of collapse, not a solvable exercise. Cut C8 before you cut P8.",
+   pulse:{k:"refuse",q:"'How many active customers?'",
+    opts:[["ans","Answer"],["ask","Ask which definition"],["ref","Refuse"]]}},
+  {id:"end",k:"Wrap",h:"Three sentences.",
+   say:"(1) Formulate. (2) Put rules in the schema. (3) Verify or refuse. Then the 90-day record.",
+   pulse:null},
+  {id:"out",k:"End",h:"Out.", say:"Stop.", pulse:null}
+ ]
+};
+
+const S=JSON.parse(localStorage.getItem("meridian")||"{}");
+S.tasks=S.tasks||{}; S.traps=S.traps||[]; S.votes=S.votes||{};
+const save=()=>localStorage.setItem("meridian",JSON.stringify(S));
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const isExec=()=>S.role==="exec";
+const agenda=()=>isExec()?AGENDA_EXEC:AGENDA_LAB;
+const actions=()=>isExec()?ACTIONS_EXEC:ACTIONS_LAB;
+const duration=()=>isExec()?90:EVENT.durationMin;
+const beats=()=>isExec()?BEATS.exec:BEATS.lab;
+function qs(k){return new URLSearchParams(location.search).get(k)}
+function isFac(){return qs("f")==="1"}
+function isStage(){return qs("stage")==="1"}
+
+let route="home";
+{
+  const m=(location.hash||"").match(/^#join=(\w+)/);
+  if(m){ const code=m[1].toUpperCase();
+    if(EVENT.teams[code]) S.pendingTeam=code; else S.badCode=code;
+    history.replaceState(null,"",location.pathname+location.search+"#home");
+  }
+}
+function go(r){route=r;location.hash=r;render()}
+window.addEventListener("hashchange",()=>{route=(location.hash.replace("#","")||"home");render()});
+
+function navItems(){
+  if(isStage()) return [["stage","Stage"]];
+  if(isExec()) return [["home","Today"],["teach","01 Teach"],["artifacts","02 Documents"],
+    ["decide","03 Decide"],["score","04 Numbers"],["wall","05 Wall"],["checklist","06 Monday"],["facilitator","· Facilitator"]];
+  return [["home","Today"],["teach","01 Teach"],["packs","02 Exercises"],["cards","03 Cards"],
+    ["artifacts","04 Documents"],["score","05 Scoreboard"],["wall","06 Wall"],["decide","07 Decide"],
+    ["checklist","08 Checklist"],["facilitator","· Facilitator"]];
+}
+
+function segIdx(){
+  if(!S.start) return 0;
+  const m=Math.floor((Date.now()-S.start)/60000);
+  const A=agenda(); let i=0;
+  for(let k=0;k<A.length;k++) if(m>=A[k][0]) i=k;
+  return i;
+}
+
+function render(){
+  if(document.body&&document.body.classList&&document.body.classList.toggle)
+    document.body.classList.toggle("onstage", isStage());
+  const sub=document.getElementById("railsub");
+  if(sub) sub.textContent=isExec()?"Executive session":"Operator lab";
+  document.getElementById("idx").innerHTML=navItems().map(([r,l])=>{
+    if(r==="facilitator"&&!isFac()&&!isStage()) return "";
+    const parts=l.split(" ");
+    return `<li><a href="#${r}" class="${route===r?"on":""}"><span class="no">${parts[0]}</span>${parts.slice(1).join(" ")}</a></li>`;
+  }).join("");
+  if(isStage()){ document.getElementById("main").innerHTML=vStage(); renderClock(); return; }
+  const pm=route.match(/^pack-(P\d)$/);
+  const views={home:vHome,packs:vPacks,cards:vCards,artifacts:vArtifacts,score:vScore,
+    wall:vWall,checklist:vChecklist,facilitator:vFac,teach:vTeach,decide:vDecide,stage:vStage};
+  const view= pm? ()=>packView(pm[1]) : (views[route]||vHome);
+  document.getElementById("main").innerHTML=view();
+  renderClock();
+}
+
+function vHome(){
+  if(!S.email) return vRegister();
+  const si=segIdx(),a=actions()[si]||actions()[0];
+  const setup=isExec()
+    ?[["Sit with your table — 3 to 6 people, one conversation"],
+      ["Open Documents and read the CFO email (90 seconds)"],
+      ["Write, privately, the revenue number you would take to the board"]]
+    :[["Open the Codex app on your table's laptop — already signed in"],
+      ["Copy card C0 below and paste it into Codex"],
+      ["Compare the table list with your handout — all 16 match?"]];
+  const su=S.setup||[false,false,false];
+  const setupDone=su.filter(Boolean).length;
+  const c0=CARDS[0];
+  return `
+   <p class="kicker">${isExec()?"Executive session · 90 minutes":"Operator lab · 150 minutes"}</p>
+   <h2 class="big">${esc(S.name)}, ${isExec()?"do not sign<br>an unformulated number.":"catch the<br>wrong answer."}</h2>
+   <p><span class="tag red">${esc(S.team)}</span><span class="tag">${isExec()?"leadership table":esc(S.pilot||"PILOT")+" drives"}</span>
+    <button class="mini ghost" onclick="S.role=isExec()?'ops':'exec';save();render()">${isExec()?"Switch to operator lab":"Switch to executive session"}</button></p>
+   <div class="sect"><h3>Do this now</h3>
+    <button class="hero" onclick="go('${a.go}')">${a.txt} →</button></div>
+   ${setupDone<3?`<div class="sect"><h3>Setup — ${setupDone}/3 done</h3>
+    ${setup.map((s,i)=>`<div class="step"><input type="checkbox" ${su[i]?"checked":""}
+      onchange="S.setup=S.setup||[false,false,false];S.setup[${i}]=this.checked;save();render()">
+      <div>${s[0]}</div></div>`).join("")}
+    ${isExec()?"":`<div class="card mono" style="margin-top:10px"><b>${c0[0]}</b> — ${c0[2]}</div>
+    <p class="flag">Stuck? Raise the red card on your table.</p>`}</div>`:""}
+   <div class="sect"><h3>${isExec()?"How this room works":"The loop — the only skill today"}</h3>
+   ${isExec()?`<p>Silent vote first. Then the split. Then a decision with an owner.
+    We will not claim causes we did not identify.</p>`
+    :`<p class="mono" style="font-size:15px">PROMPT → INSPECT → REACT → ANNOUNCE</p>
+   <p class="dim">Paste the card. Read the answer against "expect". Tell the agent what's wrong in plain
+   words. Write your number down — right or wrong, it's evidence.</p>`}</div>
+   ${isExec()?"":`<div class="sect"><h3>Your pair</h3>
+   <button class="ghost" onclick="swap()">${S.pilot==="PILOT"?"Hand over: Copilot drives next":"Take over: Pilot drives next"}</button>
+   <span class="flag">swap every question · <a href="#" onclick="presence();return false;">check in with the facilitator</a></span></div>`}`;
+}
+function vRegister(){
+  const pend=S.pendingTeam?EVENT.teams[S.pendingTeam]:null;
+  const role=S.role||"";
+  return `
+   <p class="kicker">The Meridian Challenge</p>
+   <h2 class="big">An AI will answer questions<br>about this company.<br>Some answers are wrong.</h2>
+   <p class="lede">This is risk reduction, not a coding class. Executives decide which numbers are
+   allowed to leave the building. Operators catch the wrong ones in the query. Same company. Same data.</p>
+   <div class="sect"><h3>I am here as</h3>
+    <div class="pick">
+     <button class="${role==="exec"?"on":""}" onclick="S.role='exec';save();render()">Executive / CXO table
+      <span class="flag" style="display:block;margin-top:6px">90 minutes · no programming · votes, ticks, 90-day owners</span></button>
+     <button class="${role==="ops"?"on":""}" onclick="S.role='ops';save();render()">Operator / analyst pair
+      <span class="flag" style="display:block;margin-top:6px">150 minutes · paste cards into Codex · measure the cliff</span></button>
+    </div></div>
+   ${S.badCode?`<div class="banner"><b>"${esc(S.badCode)}" is not a team code.</b><br>
+     <span class="flag">Valid codes: ${Object.keys(EVENT.teams).map(c=>`<span class="tag red">${c}</span>`).join(" ")}</span></div>`:""}
+   ${pend?`<div class="banner">Your seat: <b>${esc(pend)}</b> <span class="tag red">${esc(S.pendingTeam)}</span>
+     <span class="dim">· max ${EVENT.capacity} per team</span></div>`
+     :`<div class="sect"><label class="flag">TEAM CODE — ON YOUR TABLE CARD, OR SCAN ITS QR</label>
+       <input id="tc" placeholder="e.g. MARS">
+       <p class="flag">${Object.keys(EVENT.teams).join(" · ")} — max ${EVENT.capacity} each</p></div>`}
+   <div class="sect grid2">
+     <div><label class="flag">WORK EMAIL</label><input id="em" type="email" placeholder="you@company.com">
+      <label class="flag">FIRST NAME</label><input id="nm" placeholder="Name">
+      <p class="flag">Stays in this browser — nothing is sent anywhere.</p></div>
+     <div><p class="flag">${role==="exec"?"One conversation per table. The loudest title does not vote first — the pulse does."
+        :"You'll work in pairs: Pilot reads and decides, Copilot pastes. Swap every question."}</p>
+      <button onclick="reg()">Take my seat</button></div>
+   </div>`;
+}
+function reg(){
+  const em=em.value.trim(),nm=nm.value.trim();
+  const code=S.pendingTeam||(typeof tc!=="undefined"&&tc.value?tc.value.trim().toUpperCase():"");
+  const team=EVENT.teams[code];
+  if(!em.includes("@")||!team){alert("A real email and a valid team code, please.");return}
+  if(!S.role) S.role="ops";
+  S.email=em;S.name=nm;S.team=team;S.teamCode=code;S.pilot="PILOT";
+  delete S.pendingTeam;delete S.badCode;save();go("home");
+}
+function swap(){S.pilot=S.pilot==="PILOT"?"COPILOT":"PILOT";save();render()}
+function presence(){
+  prompt("Show this screen to the facilitator:",
+    btoa(unescape(encodeURIComponent(JSON.stringify({pres:true,team:S.team,name:S.name,role:S.role})))));
+}
+
+function beatNow(){return beats()[segIdx()]||beats()[0]}
+function pulseBox(p){
+  if(!p) return "";
+  const cur=(S.votes||{})[p.k];
+  return `<div class="sect"><h3>Pulse — vote before you talk</h3>
+    <p>${p.q}</p>
+    ${p.opts.map(([id,lab])=>`<button class="opt ${cur===id?"on":""}" onclick="vote('${p.k}','${id}')">${lab}</button>`).join("")}
+    ${cur?`<p class="flag">Locked in. Wait for the room split — that is the lesson.</p>`
+         :`<p class="flag">Silent on purpose. The first voice must not be the CEO.</p>`}
+    </div>`;
+}
+function vote(k,v){S.votes=S.votes||{};S.votes[k]=v;save();render()}
+
+function vTeach(){
+  const b=beatNow();
+  const fac=isFac();
+  return `<p class="kicker">Teach · ${b.k}</p>
+   <h2 class="big">${b.h}</h2>
+   ${b.num?`<div class="stage-num">${b.num}</div><p class="flag">${b.cap||""}</p>`:""}
+   <p class="lede">${b.show||""}</p>
+   ${fac?`<div class="speak"><span class="flag">SAY THIS</span><p>${b.say}</p></div>`:""}
+   ${pulseBox(b.pulse)}
+   <div class="sect"><h3>Monday</h3><p>${(PACKS.P1.monday)}</p>
+    <p class="dim">Open the matching exercise for the long version,
+    or stay here and follow the clock.</p>
+    <button class="ghost" onclick="go('pack-P1')">P1</button>
+    <button class="ghost" onclick="go('pack-P2')">P2</button>
+    <button class="ghost" onclick="go('decide')">Decide →</button>
+   </div>`;
+}
+function vStage(){
+  const b=beatNow();
+  return `<p class="kicker">Stage · ${b.k}</p>
+   <h2 class="big">${b.h}</h2>
+   ${b.num?`<div class="stage-num">${b.num}</div><p class="flag">${b.cap||""}</p>`:`<p class="lede">${b.show||b.say}</p>`}
+   ${b.pulse?`<div class="sect"><h3>${b.pulse.q}</h3>
+     ${b.pulse.opts.map(([,lab])=>`<p class="bignum">${lab}</p>`).join("")}
+     <p class="flag">Vote on your phone · Teach page · do not discuss yet</p></div>`:""}
+   <div class="speak"><span class="flag">FACILITATOR</span><p>${b.say}</p>
+    <p class="dim">${b.show||""}</p></div>
+   <p class="flag">Projector URL: this page with <span class="mono">?stage=1</span> · clock from <span class="mono">?f=1</span></p>`;
+}
+
+function vPacks(){
+  const spine=Object.entries(PACKS).filter(([,p])=>p.spine);
+  const rest=Object.entries(PACKS).filter(([,p])=>!p.spine);
+  const one=([id,p])=>`<div class="sect"><h3><span class="no">${id}</span>${p.title} · ${p.time}
+    <span class="flag" style="float:right">${((S.tasks[id]||[]).filter(Boolean).length)}/${(isExec()?p.exec:p.tasks).length} done</span></h3>
+    <p class="red" style="font-weight:600">${p.red}</p><p>${p.story}</p>
+    <button class="mini ghost" onclick="go('pack-${id}')">Open ${id} →</button></div>`;
+  return `<p class="kicker">Exercises</p><h2 class="big">Eight ways an answer<br>can be wrong.</h2>
+   <p class="lede">${isExec()?"Today you decide. The labs are how your operators will prove it.":"You'll do the spine today. The rest are take-home — same company, same data."}</p>
+   <div class="sect"><h3>Today's spine</h3>${spine.map(one).join("")}</div>
+   <div class="sect"><h3>Take-home catalog</h3>${rest.map(one).join("")}</div>`;
+}
+function packView(id){
+  const p=PACKS[id];
+  const list=isExec()?p.exec:p.tasks;
+  const tasks=(S.tasks[id]||[]).map(Boolean);
+  while(tasks.length<list.length) tasks.push(false);
+  S.tasks[id]=tasks;
+  const pct=Math.round(tasks.filter(Boolean).length/list.length*100);
+  return `<p class="kicker">Exercise ${id} · ${p.time}</p><h2 class="big">${p.title}</h2>
+   <p class="red" style="font-weight:600">${p.red}</p>
+   <p class="lede">${p.story}</p>
+   <div class="bar"><i style="width:${pct}%"></i></div><p class="flag">${pct}% complete</p>
+   <div class="sect"><h3>Steps — tick as you go</h3>
+   ${list.map((t,i)=>`<div class="step"><input type="checkbox" ${tasks[i]?"checked":""}
+     onchange="S.tasks['${id}'][${i}]=this.checked;save();render()"><div>${t}</div></div>`).join("")}
+   </div>
+   <div class="sect"><h3>${isExec()?"What to ask":"If the answer looks off, say this"}</h3><p>${p.hints}</p></div>
+   <div class="sect"><h3>Monday</h3><p>${p.monday}</p></div>
+   <div class="sect"><h3>Then</h3><p class="dim">${isExec()?"Record the number you would sign on <a href='#decide'>Decide</a>."
+     :"Record every number on your <a href='#score'>scoreboard</a>."}</p></div>`;
+}
+
+function vCards(){
+  return `<p class="kicker">Prompt cards</p><h2 class="big">You never write code.<br>You give instructions.</h2>
+  <p class="lede">Copy the card, paste it into Codex, read the answer against "expect". Executives: you do not need this page.</p>
+  ${CARDS.map(([id,title,text,note])=>`
+   <div class="sect"><h3><span class="no">${id}</span>${title}
+     <button class="mini ghost" style="float:right" onclick="cp(this)">Copy</button></h3>
+   <pre data-copy="${esc(text)}">${esc(text)}</pre>
+   ${note?`<p class="flag">${note}</p>`:""}</div>`).join("")}`;
+}
+function cp(btn){
+  const txt=btn.closest(".sect").querySelector("pre").dataset.copy.replace(/&lt;/g,"<").replace(/&amp;/g,"&");
+  (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(
+    ()=>{btn.textContent="Copied ✓";setTimeout(()=>btn.textContent="Copy",1200)},
+    ()=>prompt("Copy manually:",txt));
+}
+
+function vArtifacts(){
+  return `<p class="kicker">Company documents</p><h2 class="big">The mess arrives<br>as email.</h2>
+  <p class="lede">Ambiguity shows up in documents, not schemas. These three disagree with each other and with the data. Deciding which to trust is the job.</p>
+  ${ARTIFACTS.map(a=>`<div class="sect"><h3>${a.t}</h3><div class="card">${a.b}</div></div>`).join("")}`;
+}
+
+const SCORE_LABELS={Q1:"Revenue, all time (C1)",Q2n:"Monthly total, raw (C2)",Q3n:"Active customers, March (C3)",
+ Q5n:"Average order value (C5)",Q1g:"Revenue after your fix",Q2g:"Monthly total after your fix",Q5g:"AOV after your fix"};
+function vScore(){
+  if(!S.email) return "<p class='lede'>Join from the Today page first.</p>";
+  const row=(id)=>`<tr><td>${SCORE_LABELS[id]}</td>
+    <td style="width:180px"><input id="${id}" type="number" value="${(S.sc&&S.sc[id])??""}"></td>
+    <td id="${id}_g" class="mono" style="font-size:12px"></td></tr>`;
+  return `<p class="kicker">${isExec()?"The numbers":"Scoreboard"}</p><h2 class="big">${esc(S.team)}</h2>
+   <p class="lede">${isExec()?"You do not have to run the queries. Type a number you heard, or skip to Decide.":"Type the numbers the agent gave you. Grading is instant and explained."}</p>
+   <div class="sect"><h3>Raw</h3>
+    <table><tr><th>Question</th><th>Your number</th><th>Envelope</th></tr>
+    ${row("Q1")}${row("Q2n")}${row("Q3n")}${row("Q5n")}</table></div>
+   <div class="sect"><h3>After the fix</h3>
+    <table><tr><th>Question</th><th>Your number</th><th>Envelope</th></tr>
+    ${row("Q1g")}${row("Q2g")}${row("Q5g")}</table></div>
+   <div class="sect"><h3>Your three declared decisions</h3>
+    <div class="grid2">
+     <div><label class="flag">CANCELLED ORDERS COUNT?</label><select id="d1"><option>NO</option><option>YES</option></select>
+     <label class="flag">RETURNS SUBTRACTED?</label><select id="d2"><option>YES</option><option>NO</option></select></div>
+     <div><label class="flag">WHICH DATE DEFINES "WHEN"?</label><select id="d3"><option>ORDER DATE</option><option>INVOICE DATE</option></select>
+     <p class="flag">Tick first. Anyone who disputes the number must dispute a tick.</p></div>
+    </div></div>
+   <div class="sect"><h3>Sensitivity — dollars, not vibes</h3>
+    <table><tr><th>Flip</th><th>What moves</th></tr>
+     <tr><td>All-time → FY26</td><td>Most of 86.3M → 23.6M. Scope, not rounding.</td></tr>
+     <tr><td>Include cancelled → drop them + invoice basis</td><td>86.3M → 73.9M booked</td></tr>
+     <tr><td>Gross → net of returns, invoice date, FY26</td><td>23.6M → 23.2M finance</td></tr>
+     <tr><td>World → US only</td><td>23.2M → 22.4M board</td></tr>
+     <tr><td>Unscoped joins → primary line & region</td><td>62.5M → 27.5M (2.27×)</td></tr>
+    </table>
+    <p class="flag">That table is the OR deliverable: each undeclared decision has units.</p></div>
+   <button onclick="checkAll()">Grade my numbers</button>
+   <button class="ghost" onclick="saveSc()">Save</button>
+   <button class="ghost" onclick="shareModal()">Show hand-off code</button>
+   <div id="verdict"></div>
+   <div id="codemodal"></div>`;
+}
+function saveSc(){S.sc=S.sc||{};document.querySelectorAll("#main input[type=number]").forEach(el=>{if(el.value)S.sc[el.id]=+el.value});
+  ["d1","d2","d3"].forEach(id=>{const el=document.getElementById(id);if(el)S[id]=el.value});save()}
+function checkAll(){
+  saveSc();
+  const put=(id,q)=>{const v=S.sc[id];const cell=document.getElementById(id+"_g"); if(!cell) return;
+    const hits=v?grade(q,v):null;
+    cell.innerHTML=hits&&hits.length
+      ?`<span class="ok">MATCH</span><br>${hits.map(h=>{const[n,...r]=h.split("|");return `<b>${n}</b><br><span class="dim">${r.join("|")}</span>`}).join("<br><br>")}`
+      :(v?`<span class="red">NO ENVELOPE MATCH</span><br><span class="dim">wrong — or right under different decisions. Name them.</span>`:"")};
+  ["Q1","Q2n","Q5n","Q1g","Q2g","Q5g"].forEach(id=>put(id,id.replace(/n$|g$/,"")));
+  document.getElementById("verdict").innerHTML=
+   `<div class="banner"><span class="bignum">${S.sc.Q1??"—"} → ${S.sc.Q1g??"—"}</span><br>
+    <span class="dim">Revenue before and after your fix. The fixed numbers assume the default decisions
+    (cancelled: NO · returns: YES · order date). Different choices, different numbers — still correct,
+    as long as they're declared.</span></div>`;
+}
+function shareModal(){
+  saveSc();
+  const d={team:S.team,name:S.name,role:S.role,a1:S.sc&&S.sc.Q1,a2:S.sc&&S.sc.Q1g,q2n:S.sc&&S.sc.Q2n,q2g:S.sc&&S.sc.Q2g,
+    votes:S.votes,ticks:`${S.d1||"?"}/${S.d2||"?"}/${S.d3||"?"}`,
+    tasks:Object.entries(S.tasks).map(([k,v])=>k+":"+(v.filter(Boolean).length)+"/"+v.length).join(" ")};
+  document.getElementById("codemodal").innerHTML=
+   `<div class="banner"><h3>Show this screen to the facilitator</h3>
+    <div class="code">${esc(btoa(unescape(encodeURIComponent(JSON.stringify(d)))))}</div>
+    <p class="flag">They paste it into the dashboard to put your table on the board.</p></div>`;
+}
+
+function vWall(){
+  return `<p class="kicker">Wall of pain</p><h2 class="big">Write the question<br>that breaks it.</h2>
+  <p class="lede">Every trap here becomes a permanent test. Executives: write the question a board member would ask.</p>
+  <div class="sect">
+   <label class="flag">YOUR TRAP QUESTION</label><textarea id="trap" rows="2"
+     placeholder="e.g. How many active customers did we have last quarter?"></textarea>
+   <label class="flag">WHAT SHOULD HAPPEN?</label>
+   <select id="outcome"><option>haven't run it yet</option><option>confidently wrong</option>
+     <option>answered with assumptions</option><option>refused</option></select>
+   <button onclick="addTrap()">Pin to the wall</button></div>
+  ${S.traps.length?`<div class="sect"><h3>The wall</h3><table><tr><th>Trap</th><th>Outcome</th><th></th></tr>
+   ${S.traps.map((t,i)=>`<tr><td>${esc(t.q)}</td><td><span class="tag">${esc(t.o)}</span></td>
+   <td><button class="mini ghost" onclick="S.traps.splice(${i},1);save();render()">×</button></td></tr>`).join("")}
+   </table></div>`:`<p class="dim" style="margin-top:14px">Nothing pinned yet.</p>`}
+  <div class="sect"><button class="ghost" onclick="exportEval()">Download my traps (JSONL)</button></div>`;
+}
+function addTrap(){const q=trap.value.trim();if(!q)return;S.traps.push({q,o:outcome.value});save();render()}
+function exportEval(){
+  const lines=S.traps.map((t,i)=>JSON.stringify({id:"CASE-"+String(9000+i).padStart(4,"0"),
+    question:t.q,expected:{type:"refusal",refusal_reason:"unadjudicated"},trap_axes:["A1"],
+    difficulty:"hard",outcome_at_workshop:t.o.replace(/ /g,"_"),pair_id:S.team||"unknown"}));
+  dl("wall-of-pain.jsonl",lines.join("\n"));
+}
+function dl(name,text){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));a.download=name;a.click()}
+
+function vDecide(){
+  S.dec=S.dec||{};
+  const d=S.dec;
+  return `<p class="kicker">Decision record</p>
+   <h2 class="big">Leave with owners,<br>not enthusiasm.</h2>
+   <p class="lede">Strategy sessions that skip this page produce hallway agreement and Monday drift. One owner per line. Ninety days.</p>
+   <div class="sect"><h3>The three ticks we will live with</h3>
+    <div class="grid2">
+     <div><label class="flag">CANCELLED COUNT AS REVENUE?</label>
+      <select id="d1" onchange="S.d1=this.value;save()"><option ${S.d1==="NO"?"selected":""}>NO</option><option ${S.d1==="YES"?"selected":""}>YES</option></select>
+      <label class="flag">RETURNS SUBTRACTED?</label>
+      <select id="d2" onchange="S.d2=this.value;save()"><option ${S.d2==="YES"?"selected":""}>YES</option><option ${S.d2==="NO"?"selected":""}>NO</option></select></div>
+     <div><label class="flag">DATE THAT DEFINES "WHEN"</label>
+      <select id="d3" onchange="S.d3=this.value;save()"><option>ORDER DATE</option><option>INVOICE DATE</option></select>
+      <p class="flag">Default that matches the envelope: NO / YES / ORDER DATE.</p></div>
+    </div></div>
+   <div class="sect"><h3>Who owns the metric</h3>
+    <input id="own" placeholder="Name · role  e.g. Priya Shah, CFO" value="${esc(d.own||"")}"
+      onchange="S.dec.own=this.value;save()"></div>
+   <div class="sect"><h3>One 90-day move</h3>
+    <textarea id="mv" rows="3" placeholder="e.g. Stand up a governed revenue view; no board number leaves without it."
+      onchange="S.dec.mv=this.value;save()">${esc(d.mv||"")}</textarea></div>
+   <div class="sect"><h3>What we will not claim</h3>
+    <textarea id="nc" rows="3" placeholder="e.g. Dual-region reps are a hypothesis for delay, not a cause. Q2 vs Q1 is not the Feb policy effect."
+      onchange="S.dec.nc=this.value;save()">${esc(d.nc||"")}</textarea>
+    <p class="flag">Write this even if it feels pedantic. It is the difference between judgment and a new wrong answer.</p></div>
+   <button onclick="saveDec();alert('Saved on this device. Hand-off code is on the scoreboard.')">Save record</button>
+   <button class="ghost" onclick="dlDec()">Download one-pager</button>`;
+}
+function saveDec(){
+  S.dec=S.dec||{};
+  const own=document.getElementById("own"),mv=document.getElementById("mv"),nc=document.getElementById("nc");
+  if(own) S.dec.own=own.value; if(mv) S.dec.mv=mv.value; if(nc) S.dec.nc=nc.value;
+  save();
+}
+function dlDec(){
+  saveDec();
+  const t=`MERIDIAN CHALLENGE — decision record
+Team: ${S.team||""}  ${S.name||""}
+Ticks: cancelled=${S.d1||"?"}  returns=${S.d2||"?"}  date=${S.d3||"?"}
+Metric owner: ${S.dec.own||""}
+90-day move: ${S.dec.mv||""}
+We will not claim: ${S.dec.nc||""}
+Votes: ${JSON.stringify(S.votes||{})}
+`;
+  dl("meridian-decision.txt",t);
+}
+
+function vChecklist(){
+  S.cl=S.cl||CHECKLIST.map(()=>false);
+  return `<p class="kicker">Monday morning</p><h2 class="big">${isExec()?"Questions that protect<br>the board deck.":"The 10 questions<br>that catch bad answers."}</h2>
+  <p class="lede">${isExec()?"Forward this. Use it on vendors and on your own data team.":"Use these on any AI-generated number."}</p>
+  ${CHECKLIST.map((c,i)=>`<div class="step"><input type="checkbox" ${S.cl[i]?"checked":""}
+    onchange="S.cl[${i}]=this.checked;save()"><div>${c}</div></div>`).join("")}
+  <div class="sect"><h3>Vendor filter — 2026</h3>
+   ${VENDOR.map(q=>`<p>· ${q}</p>`).join("")}
+   <p class="flag">Live data or estimates. Semantic layer or guesswork. Ask or guess. Refuse or bluff. Query you can audit, or not.</p>
+  </div>`;
+}
+
+function vFac(){
+  const b=beatNow();
+  return `<p class="kicker">Facilitator</p><h2 class="big">Run the room.</h2>
+   <p class="dim">Visible because this URL carries ?f=1. Projector: add ?stage=1 (clock still needs a start here).</p>
+   <div class="sect"><h3>Clock</h3>
+    <button onclick="S.start=Date.now();save();render()">${S.start?"Restart":"Start"} the clock (now)</button>
+    <button class="ghost" onclick="delete S.start;save();render()">Clear</button>
+    <span class="flag">${S.start?"started "+new Date(S.start).toLocaleTimeString():"not started — wait for S1"}</span>
+    <p class="flag">Current beat: <b>${b.k}</b> — ${b.h}. Duration follows the role of this browser (${isExec()?"90 min exec":"150 min lab"}).</p>
+    <p><a href="?stage=1#stage" target="_blank">Open stage (new tab)</a></p></div>
+   <div class="speak"><span class="flag">SAY THIS NOW</span><p>${b.say}</p></div>
+   <div class="sect"><h3>Room pulse (you type the split after hands or phones)</h3>
+    <input id="split" placeholder="e.g. board: 4 yes / 11 no / 6 depends" value="${esc(S.split||"")}"
+     onchange="S.split=this.value;save()">
+    <p class="flag">Mentimeter rule: the chart is the prompt, not the conclusion. Pause. Then discuss the split.</p></div>
+   <div class="sect"><h3>Roster — check-ins</h3>
+    <textarea id="pres" rows="2" placeholder="paste a presence code"></textarea>
+    <button onclick="mergePresence()">Check in</button>
+    <button class="ghost" onclick="if(confirm('clear roster?')){S.roster=[];save();render()}">Clear</button>
+    <p class="flag">${(S.roster||[]).length} checked in · ${new Set((S.roster||[]).map(r=>r.team)).size} team(s)</p>
+    <table><tr><th>Name</th><th>Team</th><th>Role</th></tr>
+    ${(S.roster||[]).map(r=>`<tr><td>${esc(r.name||"—")}</td><td>${esc(r.team)}</td><td>${esc(r.role||"")}</td></tr>`).join("")
+      ||`<tr><td colspan="3" class="dim">nobody yet</td></tr>`}</table></div>
+   <div class="sect"><h3>Team scores</h3>
+    <textarea id="sync" rows="3" placeholder="paste a hand-off code"></textarea>
+    <button onclick="mergeSync()">Merge</button>
+    <button class="ghost" onclick="if(confirm('clear board?')){S.board={};save();render()}">Clear board</button>
+    <div id="board">${board()}</div></div>
+   <div class="sect"><h3>Parking lot</h3>
+    <textarea id="park" rows="3" placeholder="write the point, blame the timer, move on"
+      onchange="S.park=this.value;save()">${esc(S.park||"")}</textarea></div>
+   <div class="sect"><h3>Trap harvest</h3>
+    <textarea id="wm" rows="3" placeholder="paste participant wall export (JSONL)"></textarea>
+    <button onclick="mergeWall()">Append</button>
+    <button class="ghost" onclick="dl('cases.jsonl',(S.eval||[]).map(j=>JSON.stringify(j)).join('\\n'))">Download cases.jsonl</button>
+    <p class="flag">${(S.eval||[]).length} cases held</p></div>`;
+}
+function board(){
+  S.board=S.board||{};
+  const rows=Object.entries(S.board).map(([t,b])=>
+   `<tr><td><b>${esc(t)}</b> ${b.name?`<span class="dim">${esc(b.name)}</span>`:""}</td>
+    <td class="mono">${b.a1??"—"}</td><td class="mono">${b.a2??"—"}</td>
+    <td class="mono dim">${esc(b.ticks||"")}</td><td class="mono dim">${esc(b.role||"")}</td></tr>`).join("");
+  return `<table><tr><th>Team</th><th>Before</th><th>After</th><th>Ticks</th><th>Role</th></tr>
+   ${rows||`<tr><td colspan="5" class="dim">no teams yet</td></tr>`}</table>`;
+}
+function mergeSync(){
+  try{const d=JSON.parse(decodeURIComponent(escape(atob(sync.value.trim()))));
+    S.board=S.board||{};S.board[d.team]=d;save();render();
+  }catch(e){alert("unreadable code")}
+}
+function mergePresence(){
+  try{const d=JSON.parse(decodeURIComponent(escape(atob(pres.value.trim()))));
+    if(!d.pres) throw 0;
+    S.roster=S.roster||[];
+    if(!S.roster.some(r=>r.name===d.name&&r.team===d.team)) S.roster.push(d);
+    save();render();
+  }catch(e){alert("unreadable presence code")}
+}
+function mergeWall(){S.eval=S.eval||[];
+  wm.value.split("\n").filter(Boolean).forEach(l=>{try{S.eval.push(JSON.parse(l))}catch(e){}});
+  save();render()}
+
+function curSeg(){
+  if(!S.start) return {banner:`<div class="banner">The facilitator hasn't started the clock — meanwhile,
+    tick the setup steps below.</div>`,name:"Before we start",desc:"",next:"",left:0,m:0};
+  const m=Math.floor((Date.now()-S.start)/60000);
+  const A=agenda(); let i=0; for(let k=0;k<A.length;k++) if(m>=A[k][0]) i=k;
+  const nxt=A[i+1];
+  return {banner:"",name:A[i][1],desc:A[i][2],
+    next:nxt?`${nxt[1]} at minute ${nxt[0]}`:"we're done",left:nxt?nxt[0]-m:duration()-m,m};
+}
+function renderClock(){
+  const el=document.getElementById("railclock"); if(!el) return;
+  const seg=curSeg(); const left=duration()-seg.m;
+  el.innerHTML=S.start?`
+    <div class="timer ${left<20?"warn":""}">${Math.max(0,left)}′</div>
+    <div class="flag">MINUTES LEFT<br><b style="color:var(--ink)">${seg.name}</b></div>
+    <div class="bar"><i style="width:${Math.min(100,100*seg.m/duration())}%"></i></div>`
+   :`<div class="flag">Clock not started</div>`;
+}
+setInterval(()=>{if(S.start)renderClock()},10000);
+if(location.hash.replace("#","")==="stage") route="stage";
+else if(location.hash) route=location.hash.replace("#","")||"home";
+render();
+</script>
+</body>
+</html>

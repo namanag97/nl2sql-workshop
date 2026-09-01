@@ -1,0 +1,14 @@
+Q2 — MONTHLY REVENUE BY LINE BY REGION, H1 2026 (sealed)
+Correct net revenue by region (default ticks D1=yes D2=yes D3=order-date):
+  CENTRAL        2,389,573
+  EAST           6,000,108
+  MIDATLANTIC    2,323,706
+  NORTH          4,226,261
+  NORTHEAST      2,879,599
+  SOUTH          3,320,024
+  SOUTHEAST      3,233,833
+  WEST           3,123,451
+Naive fan-out total: 62,541,876  (factor 2.27x reality)
+Register: primary region only; one line per product; current dim row; net
+of returns. Ticks other than the default = different numbers = still right,
+but must be declared.

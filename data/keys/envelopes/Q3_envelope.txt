@@ -1,0 +1,7 @@
+Q3 — ACTIVE CUSTOMERS IN MARCH 2026 (sealed)
+Naive (distinct ordering accounts): 277
+As known NOW:            236
+As known AT CLOSE:       198
+As of Mar 15 (point-in-time): 236
+Register: contract_active on the applicable version; restatements of 40
+customers were loaded 2026-04-05 (after close).

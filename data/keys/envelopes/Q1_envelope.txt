@@ -1,0 +1,9 @@
+Q1 — TOTAL REVENUE (sealed until reveal)
+Naive (all lines, all time, cancelled in, returns ignored): 86,296,983
+Booked (invoiced only — cancelled never invoiced):          73,900,374
+FY26 Sales (gross, order-date):   23,597,376
+FY26 Finance (net, invoice-date): 23,193,717
+FY26 Board (net, invoice-date, domestic): 22,389,702
+Register: see keys.json Q1.register — a team matches only if the DECISIONS
+match. A team landing on the booked number answered on invoices: also a
+decision, just a different one.

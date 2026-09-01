@@ -1,0 +1,164 @@
+{
+  "meta": {
+    "source": "data/out/*.csv",
+    "close_date": "2026-04-02",
+    "fy26_start": "2026-02-01",
+    "data_end": "2026-06-30"
+  },
+  "Q1": {
+    "naive_all_time_everything": 86296983,
+    "booked_invoiced_all_time": 73900374,
+    "sales_fy26_gross_order_date": 23597376,
+    "finance_fy26_net_invoice_date": 23193717,
+    "board_fy26_net_invoice_date_domestic": 22389702,
+    "register": [
+      "naive: every line, cancelled included, returns ignored, all time",
+      "sales: exclude CANCELLED, order-date basis, gross of returns, FY26 (Feb start)",
+      "finance: exclude CANCELLED, invoice-date basis, net of returns, FY26",
+      "board: finance rules + domestic (USD) orders only"
+    ]
+  },
+  "Q2": {
+    "governed_net_revenue_h1_2026_by_region": {
+      "CENTRAL": 2389573,
+      "EAST": 6000108,
+      "MIDATLANTIC": 2323706,
+      "NORTH": 4226261,
+      "NORTHEAST": 2879599,
+      "SOUTH": 3320024,
+      "SOUTHEAST": 3233833,
+      "WEST": 3123451
+    },
+    "naive_fanout_total_h1_2026": 62541876,
+    "fanout_factor": 2.27,
+    "register": [
+      "DEFAULT TICK SET: D1 exclude cancelled = YES, D2 net of returns = YES, D3 revenue date = order_date \u2014 a team matches only with these ticks",
+      "region = rep's PRIMARY region only (dual-region reps count once)",
+      "one product line per product (primary), customer dim = current row",
+      "naive figure joins all line-map rows, all regions, all dim versions"
+    ]
+  },
+  "Q3": {
+    "naive_distinct_ordering_accounts_march": 277,
+    "active_as_known_now": 236,
+    "active_as_known_at_close": 198,
+    "active_as_of_2026_03_15": 236,
+    "register": [
+      "active = contract_active = TRUE on the customer's applicable version",
+      "as-known-now: latest loaded_at per customer (restatements applied)",
+      "as-known-at-close: only rows loaded before 2026-04-02",
+      "as-of 2026-03-15: version valid on that date, now-knowledge"
+    ]
+  },
+  "Q4": {
+    "naive_top5_by_erp_code": {
+      "C-1042": 4842001,
+      "C-2128": 3838496,
+      "C-1422": 2674589,
+      "C-2557": 2548362,
+      "C-1945": 2370797
+    },
+    "resolved_top5_by_entity": {
+      "Acme Corp": 5577887,
+      "Acme Logistics Group": 3838496,
+      "Nordic Supply": 2674589,
+      "Ivywood Trading": 2548362,
+      "Elmwood Distribution": 2370797
+    },
+    "register": [
+      "naive: group by ERP code -> one legal entity appears as two companies",
+      "resolved: merge codes via customer_xref -> Acme Corp is #1",
+      "'Acme Logistics Group' is a different entity (near-name decoy, QK-11)"
+    ]
+  },
+  "Q5": {
+    "naive_aov_incl_cancelled": 17856,
+    "governed_aov_non_cancelled": 16173,
+    "register": [
+      "naive: every order incl. CANCELLED, gross of returns",
+      "governed: DEFAULT TICK SET \u2014 cancelled excluded, net of returns (D1/D2 yes)"
+    ]
+  },
+  "P7": {
+    "worst_qoq_margin_delta_region": "EAST",
+    "margin_pct_by_region": {
+      "CENTRAL": {
+        "Q1": 35.0,
+        "Q2": 35.6
+      },
+      "EAST": {
+        "Q1": 34.5,
+        "Q2": 33.3
+      },
+      "MIDATLANTIC": {
+        "Q1": 33.9,
+        "Q2": 35.7
+      },
+      "NORTH": {
+        "Q1": 33.9,
+        "Q2": 34.6
+      },
+      "NORTHEAST": {
+        "Q1": 34.8,
+        "Q2": 35.1
+      },
+      "SOUTH": {
+        "Q1": 33.7,
+        "Q2": 35.8
+      },
+      "SOUTHEAST": {
+        "Q1": 31.3,
+        "Q2": 32.4
+      },
+      "WEST": {
+        "Q1": 35.1,
+        "Q2": 34.4
+      }
+    },
+    "qoq_delta_pp": {
+      "CENTRAL": 0.6,
+      "EAST": -1.2,
+      "MIDATLANTIC": 1.8,
+      "NORTH": 0.7,
+      "NORTHEAST": 0.3,
+      "SOUTH": 2.1,
+      "SOUTHEAST": 1.1,
+      "WEST": -0.7
+    },
+    "register": [
+      "margin = net revenue - returns - COGS (unit_cost x qty), excl CANCELLED",
+      "quarters are CALENDAR Q1/Q2 2026 (the 'returns policy change' is Feb)",
+      "region = rep's primary region"
+    ]
+  },
+  "P6": {
+    "median_order_to_ship_days": 4,
+    "cycle_time_buckets": {
+      "on_time": 1576,
+      "standard": 1337,
+      "late": 420,
+      "stalled": 964
+    },
+    "top_delay_variant": "on_time",
+    "top_delay_variant_orders": 1576,
+    "late_tail": {
+      "late_8_14d": 420,
+      "stalled_over_14d": 964
+    },
+    "delay_concentration": {
+      "late_or_stalled_from_dual_region_reps_pct": 74.3,
+      "all_orders_from_dual_region_reps_pct": 43.3
+    },
+    "log_validity": {
+      "orphan_shipments": 60,
+      "orders_missing_valid_shipment": 128
+    },
+    "register": [
+      "cycle = order_date to EARLIEST shipment with ship_date >= order_date",
+      "earlier-dated shipment rows are QK-15 data glitches - excluded by the validity check",
+      "buckets: on_time <=3d, standard 4-7d, late 8-14d, stalled >14d",
+      "delay concentration: compare late-tail dual-rep share vs their overall share",
+      "validity: 60 orphans (QK-16) + orders with no valid shipment must be reported, not silently dropped"
+    ]
+  }
+}

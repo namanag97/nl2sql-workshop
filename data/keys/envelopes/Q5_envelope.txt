@@ -1,0 +1,3 @@
+Q5 — AVERAGE ORDER VALUE (sealed)
+Naive (cancelled included, gross): 17,856
+Governed (default ticks: excl cancelled, net of returns): 16,173

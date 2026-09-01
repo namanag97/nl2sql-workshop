@@ -1,0 +1,12 @@
+.DS_Store
+
+# generated artifacts (regenerate: gen/generate.py, fallback/build_duckdb.py, scripts/gen_print_assets.py)
+data/out/
+data/fallback/*.duckdb
+assets/print/
+.venv/
+__pycache__/
+*.pyc
+
+# rerun-at-home kit (build_kit.py)
+kit/
